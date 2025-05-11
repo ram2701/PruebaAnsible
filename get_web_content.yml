@@ -13,14 +13,13 @@
           ansible.builtin.uri:
             url: http://vagrant1
             return_content: yes
-            #status_code: 200
           register: web_content
 
       rescue:
 
         - name: Retrieve web content
           copy:
-            content: "{{ content | default('No content available') }}"
+            content: "{{ web_content | default('No content available') }}"
             dest: error.log
             force: true
 
