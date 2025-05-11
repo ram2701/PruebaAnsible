@@ -1,0 +1,58 @@
+---
+- name: Task 2.1
+  hosts: servidores
+  become: true
+  become_method: sudo
+
+  tasks:
+    
+    - name: Install httpd package
+      yum:
+        name: httpd
+        state: latest
+
+    - name: Start and enable httpd service
+      service:
+        name: httpd
+        state: started
+        enabled: true
+
+    - name: Deploy template 
+      template:
+        src: templates/vhosts.conf.j2
+        dest: /etc/httpd/conf.d/vhost.conf
+      notify: Restart httpd
+
+    - name: Check if a directory exists
+      stat:
+        path: "/var/www/vhosts/{{ ansible_hostname }}"
+      register: vhosts_dir
+
+    - name: Create folder
+      file:
+        path: "/var/www/vhosts/{{ ansible_hostname }}"
+        mode: "0755"
+
+
+    - name: Copy index.html
+      copy:
+        src: files/index.html
+        dest: "/var/www/vhosts/{{ ansible_hostname }}"
+      when: vhosts_dir.stat.exists
+
+    - name: Allow HTTP connections in firewalld
+      ansible.posix.firewalld:
+        service: "{{ item }}"
+        state: enabled
+        permanent: yes
+        immediate: yes
+      loop:
+        - http
+        - https
+
+  handlers:
+
+    - name: Restart httpd
+      service:
+        name: httpd
+        state: restarted

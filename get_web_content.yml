@@ -1,0 +1,26 @@
+---
+- name: Test web content
+  hosts: localhost
+  become: true
+  become_method: sudo
+
+  tasks:
+    - name: Retrieve web content and write to error log on failure
+
+      block:
+
+        - name: Retrieve web content
+          ansible.builtin.uri:
+            url: http://vagrant1
+            return_content: yes
+            #status_code: 200
+          register: web_content
+
+      rescue:
+
+        - name: Retrieve web content
+          copy:
+            content: "{{ content | default('No content available') }}"
+            dest: error.log
+            force: true
+

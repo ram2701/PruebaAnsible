@@ -1,0 +1,29 @@
+- name: Crear usuarios
+  hosts: servidores
+  become: true
+  become_method: sudo
+  gather_facts: yes
+  vars:
+    packages:
+      - memcached
+      - mariadb-server
+
+  tasks:
+
+    - name: Crear usuario carlos y marta
+      user:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - carlos
+        - marta
+
+    - name: Muestra memoria total de swap       
+      ansible.builtin.debug:
+        msg: "Memoria total de swap: {{ ansible_swaptotal_mb }}MB"
+
+    - name: Instalar redis si swap > 20MB
+      yum:
+        name: redis  
+        state: latest
+      when: ansible_swaptotal_mb > 20
