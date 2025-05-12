@@ -17,7 +17,7 @@
 
       rescue:
 
-        - name: Retrieve web content
+        - name: Write to error file
           copy:
             content: "{{ web_content | default('No content available') }}"
             dest: error.log
