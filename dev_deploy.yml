@@ -32,6 +32,7 @@
       copy:
         src: files/index.html
         dest: "/var/www/vhosts/{{ ansible_hostname }}"
+        mode: '0644'
 
     - name: Allow HTTP connections in firewalld
       ansible.posix.firewalld:
